@@ -24,18 +24,18 @@ public class PdfActivity extends AppCompatActivity implements OnPageChangeListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdf);
 
-//        Intent intent = getIntent();
-//        String name = intent.getStringExtra("name");
-//        String path = intent.getStringExtra("path");
+        Intent intent = getIntent();
+        String name = intent.getStringExtra("name");
+        String path = intent.getStringExtra("path");
 
 
-//        pdfReader = this.getSharedPreferences("PDFReader", Context.MODE_PRIVATE);
-//        File file=new File(Environment.getExternalStorageDirectory()+"/abc.pdf");
-//        PDFView pdfView = (PDFView) findViewById(R.id.pdfbook);
-//        pdfView.fromFile(file)
-//                .defaultPage(pdfReader.getInt("pages",0))
-//                .onPageChange(this)
-//                .load();
+        pdfReader = this.getSharedPreferences("PDFReader", Context.MODE_PRIVATE);
+        File file=new File(Environment.getExternalStorageDirectory()+"/abc.pdf");
+        PDFView pdfView = (PDFView) findViewById(R.id.pdfbook);
+        pdfView.fromFile(file)
+                .defaultPage(pdfReader.getInt("pages",0))
+                .onPageChange(this)
+                .load();
 
 
 
