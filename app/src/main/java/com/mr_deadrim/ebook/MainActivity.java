@@ -1,32 +1,24 @@
 package com.mr_deadrim.ebook;
 
-import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,14 +28,16 @@ public class MainActivity extends AppCompatActivity {
     int fromPosition, toPosition;
     JSONArray jsonArray;
     JSONObject json,temp;
+    EditText storageEditText,nameEditText;
+    private static final int PICK_FILE_REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Add = findViewById(R.id.add);
         recyclerView = findViewById(R.id.recyclerView);
-
         SharedPreferences prefs = getSharedPreferences("MySharedPref", MODE_PRIVATE);
         try {
             jsonArray = new JSONArray(prefs.getString("key", "[]"));
@@ -59,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 View View = getLayoutInflater().inflate(R.layout.dialog, null);
-                final EditText name = (EditText) View.findViewById(R.id.name);
-                final EditText storage = (EditText) View.findViewById(R.id.storage);
+                nameEditText = (EditText) View.findViewById(R.id.name);
+                storageEditText = (EditText) View.findViewById(R.id.storage);
                 Button cancel = (Button) View.findViewById(R.id.btn_cancel);
                 Button save = (Button) View.findViewById(R.id.btn_okay);
+                Button chooseFile =(Button) View.findViewById(R.id.chooseFile);
+                
                 alert.setView(View);
                 final AlertDialog alertDialog = alert.create();
                 alertDialog.setCanceledOnTouchOutside(false);
@@ -72,19 +68,33 @@ public class MainActivity extends AppCompatActivity {
                         alertDialog.dismiss();
                     }
                 });
+                chooseFile.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(android.view.View view) {
+                        openFileChooser();
+                    }
+                });
                 save.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         JSONObject json = new JSONObject();
                         try {
-                            json.put("name", name.getText().toString());
-                            json.put("storage", storage.getText().toString());
+                            json.put("name", nameEditText.getText().toString());
+                            json.put("storage", storageEditText.getText().toString());
+
+                            JSONObject jsonPageObject = new JSONObject();
+                            jsonPageObject.put("current_page", 0);
+                            jsonPageObject.put("total_page",0);
+
+                            json.put("page", jsonPageObject);
+                            Toast.makeText(MainActivity.this, storageEditText.getText().toString(), Toast.LENGTH_SHORT).show();
                             jsonArray.put(json);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Toast.makeText(MainActivity.this, jsonArray.toString(), Toast.LENGTH_SHORT).show();
+                        recyclerAdapter.notifyDataSetChanged();
                         Save();
+
                         alertDialog.dismiss();
                     }
                 });
@@ -113,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return false;
             }
-
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
@@ -121,6 +130,28 @@ public class MainActivity extends AppCompatActivity {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+    private void openFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("application/pdf");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                String filePath = FileUtils.getPathFromURI(this, uri);
+                if (filePath != null) {
+                    storageEditText.setText(filePath);
+                } else {
+                    Toast.makeText(this, "Failed to get file path", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
     public void Save() {

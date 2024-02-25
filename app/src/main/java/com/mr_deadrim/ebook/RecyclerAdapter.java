@@ -2,22 +2,18 @@ package com.mr_deadrim.ebook;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.List;
+import java.io.File;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
@@ -31,7 +27,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public RecyclerAdapter(JSONArray jsonArray) {
         this.jsonArray = jsonArray;
     }
-
 
 
     @NonNull
@@ -78,21 +73,30 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 public boolean onLongClick(View view) {
 //                    jsonArray.remove(getAdapterPosition());
 //                    notifyItemRemoved(getAdapterPosition());
+
                     Toast.makeText(view.getContext(), "long click", Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });
-
         }
 
         @Override
         public void onClick(View view) {
-
-            Toast.makeText(view.getContext(), "click", Toast.LENGTH_SHORT).show();
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(getAdapterPosition());
+                String storagePath = jsonObject.getString("storage");
+                File file = new File(storagePath);
+                if (file.exists()) {
+                    Context context = itemView.getContext();
+                    Intent intent = new Intent(context, PdfActivity.class);
+                    intent.putExtra("storage", storagePath);
+                    context.startActivity(intent);
+                } else {
+                    Toast.makeText(itemView.getContext(), "File not found", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
         }
-
     }
-
-
-
 }

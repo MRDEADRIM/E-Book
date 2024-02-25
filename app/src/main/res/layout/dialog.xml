@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".dialog">
+    android:layout_height="wrap_content">
 
 
     <TextView
@@ -51,7 +50,7 @@
         android:text="save"
         android:textColor="#ffffff"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="@+id/chooseFile"
         app:layout_constraintTop_toBottomOf="@+id/storage" />
 
     <EditText
@@ -62,12 +61,12 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/button"
+        app:layout_constraintEnd_toStartOf="@+id/chooseFile"
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/chooseFile"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:text="S"
